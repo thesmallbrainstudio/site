@@ -1,12 +1,11 @@
 /* ========================================================
-   Small Brain Studio — script.js
+   Small Brain Studio — script.js (Performance Optimized)
    ======================================================== */
 
 // ===== THEME TOGGLE =====
 const themeToggle = document.getElementById('themeToggle');
 const htmlEl = document.documentElement;
 
-// Load saved theme preference
 const savedTheme = localStorage.getItem('sbs-theme') || 'dark';
 htmlEl.setAttribute('data-theme', savedTheme);
 
@@ -16,20 +15,27 @@ themeToggle.addEventListener('click', () => {
   htmlEl.setAttribute('data-theme', next);
   localStorage.setItem('sbs-theme', next);
 
-  // Trigger spin animation
   themeToggle.classList.remove('spinning');
-  void themeToggle.offsetWidth; // force reflow
+  void themeToggle.offsetWidth;
   themeToggle.classList.add('spinning');
   setTimeout(() => themeToggle.classList.remove('spinning'), 520);
 });
 
 // ===== NAVBAR SCROLL =====
 const navbar = document.getElementById('navbar');
+let ticking = false;
+
 window.addEventListener('scroll', () => {
-  navbar.classList.toggle('scrolled', window.scrollY > 30);
-  updateActiveNavLink();
-  updateScrollProgress();
-});
+  if (!ticking) {
+    requestAnimationFrame(() => {
+      navbar.classList.toggle('scrolled', window.scrollY > 30);
+      updateActiveNavLink();
+      updateScrollProgress();
+      ticking = false;
+    });
+    ticking = true;
+  }
+}, { passive: true });
 
 // ===== HAMBURGER MENU =====
 const hamburger = document.getElementById('hamburger');
@@ -72,7 +78,7 @@ function updateScrollProgress() {
   progressBar.style.width = (docHeight > 0 ? (scrollTop / docHeight) * 100 : 0) + '%';
 }
 
-// ===== ANIMATE ON SCROLL (Directional) =====
+// ===== ANIMATE ON SCROLL =====
 const animateObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
@@ -123,28 +129,77 @@ const statsObserver = new IntersectionObserver((entries) => {
 const heroStats = document.querySelector('.hero-stats');
 if (heroStats) statsObserver.observe(heroStats);
 
-// ===== PARTICLES (Enhanced) =====
-const particlesContainer = document.getElementById('particles');
-const PARTICLE_COUNT = 55;
+// ===== PARTICLES (Optimized — Canvas-based, no DOM spam) =====
+const particlesCanvas = document.createElement('canvas');
+particlesCanvas.id = 'particlesCanvas';
+particlesCanvas.style.cssText = `
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:0;opacity:0.7;
+`;
+document.body.prepend(particlesCanvas);
 
-function createParticle() {
-  const p = document.createElement('div');
-  p.className = 'particle';
-  const size = Math.random() * 2.5 + 0.8;
-  const hue = Math.random() > 0.7 ? '270' : '199';
-  p.style.cssText = `
-    left:${Math.random() * 100}%;
-    top:${Math.random() * 100}%;
-    width:${size}px;
-    height:${size}px;
-    background:hsl(${hue},90%,75%);
-    animation-duration:${Math.random() * 12 + 7}s;
-    animation-delay:${Math.random() * 10}s;
-    opacity:${Math.random() * 0.55 + 0.08};
-  `;
-  particlesContainer.appendChild(p);
+// Remove the old #particles div if it exists
+const oldParticles = document.getElementById('particles');
+if (oldParticles) oldParticles.remove();
+
+const ctx = particlesCanvas.getContext('2d');
+let W = window.innerWidth, H = window.innerHeight;
+particlesCanvas.width = W;
+particlesCanvas.height = H;
+
+const PARTICLE_COUNT = 28; // reduced from 55
+const particles = [];
+
+function initParticle(p) {
+  p.x = Math.random() * W;
+  p.y = Math.random() * H;
+  p.size = Math.random() * 1.8 + 0.5;
+  p.speed = Math.random() * 0.4 + 0.15;
+  p.opacity = Math.random() * 0.45 + 0.08;
+  p.hue = Math.random() > 0.7 ? 270 : 199;
+  return p;
 }
-for (let i = 0; i < PARTICLE_COUNT; i++) createParticle();
+
+for (let i = 0; i < PARTICLE_COUNT; i++) {
+  particles.push(initParticle({}));
+}
+
+// Pause canvas when page is hidden
+let canvasRunning = true;
+document.addEventListener('visibilitychange', () => {
+  canvasRunning = !document.hidden;
+  if (canvasRunning) drawParticles();
+});
+
+function drawParticles() {
+  if (!canvasRunning) return;
+  ctx.clearRect(0, 0, W, H);
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(${p.hue},90%,75%,${p.opacity})`;
+    ctx.fill();
+    p.y += p.speed;
+    if (p.y > H + 5) {
+      p.y = -5;
+      p.x = Math.random() * W;
+    }
+  });
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// Resize handling — debounced
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    particlesCanvas.width = W;
+    particlesCanvas.height = H;
+  }, 200);
+}, { passive: true });
 
 // ===== WORK FILTERS =====
 const filterBtns = document.querySelectorAll('.filter-btn');
@@ -171,12 +226,34 @@ filterBtns.forEach(btn => {
   });
 });
 
-// ===== EMAILJS SETUP =====
+// ===== EMAILJS — Lazy Load (only when contact section enters viewport) =====
 const EMAILJS_PUBLIC_KEY  = 'tnqWUAbOJiXDatDyn';
 const EMAILJS_SERVICE_ID  = 'service_5tzz0fh';
 const EMAILJS_TEMPLATE_ID = 'template_v6taca8';
 
-emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+let emailjsLoaded = false;
+
+function loadEmailJS() {
+  if (emailjsLoaded) return;
+  emailjsLoaded = true;
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+  script.onload = () => {
+    emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+  };
+  document.head.appendChild(script);
+}
+
+const contactSection = document.getElementById('contact');
+if (contactSection) {
+  const emailjsLoader = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      loadEmailJS();
+      emailjsLoader.disconnect();
+    }
+  }, { rootMargin: '300px' }); // preload 300px before visible
+  emailjsLoader.observe(contactSection);
+}
 
 // ===== CONTACT FORM =====
 const contactForm = document.getElementById('contactForm');
@@ -224,24 +301,40 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   });
 });
 
-// ===== CURSOR GLOW (rAF Smooth) =====
+// ===== CURSOR GLOW — Fixed: uses transform instead of left/top =====
 const cursorGlow = document.createElement('div');
 cursorGlow.style.cssText = `
-  position:fixed;width:380px;height:380px;border-radius:50%;
-  background:radial-gradient(circle,rgba(56,189,248,0.05),rgba(129,140,248,0.025),transparent 70%);
-  pointer-events:none;z-index:9998;transform:translate(-50%,-50%);will-change:left,top;
+  position:fixed;width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(circle,rgba(56,189,248,0.06),rgba(129,140,248,0.03),transparent 70%);
+  pointer-events:none;z-index:9998;
+  top:0;left:0;
+  transform:translate(-50%,-50%);
+  will-change:transform;
 `;
 document.body.appendChild(cursorGlow);
 
-let cursorX = 0, cursorY = 0, glowX = 0, glowY = 0;
-document.addEventListener('mousemove', (e) => { cursorX = e.clientX; cursorY = e.clientY; });
-(function animateCursor() {
+let cursorX = -500, cursorY = -500, glowX = -500, glowY = -500;
+let glowAnimId = null;
+
+document.addEventListener('mousemove', (e) => {
+  cursorX = e.clientX;
+  cursorY = e.clientY;
+  if (!glowAnimId) glowAnimId = requestAnimationFrame(animateCursor);
+}, { passive: true });
+
+function animateCursor() {
   glowX += (cursorX - glowX) * 0.1;
   glowY += (cursorY - glowY) * 0.1;
-  cursorGlow.style.left = glowX + 'px';
-  cursorGlow.style.top  = glowY + 'px';
-  requestAnimationFrame(animateCursor);
-})();
+  // Use transform (GPU-composited) instead of left/top (layout thrashing)
+  cursorGlow.style.transform = `translate(calc(${glowX}px - 50%), calc(${glowY}px - 50%))`;
+  const dx = Math.abs(cursorX - glowX);
+  const dy = Math.abs(cursorY - glowY);
+  if (dx > 0.1 || dy > 0.1) {
+    glowAnimId = requestAnimationFrame(animateCursor);
+  } else {
+    glowAnimId = null; // Stop when settled — save CPU
+  }
+}
 
 // ===== MAGNETIC BUTTON =====
 document.querySelectorAll('.magnetic-btn').forEach(btn => {
@@ -250,20 +343,22 @@ document.querySelectorAll('.magnetic-btn').forEach(btn => {
     const x = (e.clientX - r.left - r.width  / 2) * 0.22;
     const y = (e.clientY - r.top  - r.height / 2) * 0.22;
     btn.style.transform = `translate(${x}px,${y}px)`;
-  });
+  }, { passive: true });
   btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
 });
 
-// ===== CARD 3D TILT =====
-document.querySelectorAll('.service-card, .work-card').forEach(card => {
-  card.addEventListener('mousemove', (e) => {
-    const r = card.getBoundingClientRect();
-    const x = (e.clientX - r.left - r.width  / 2) / r.width;
-    const y = (e.clientY - r.top  - r.height / 2) / r.height;
-    card.style.transform = `translateY(-8px) rotateX(${y * -6}deg) rotateY(${x * 6}deg)`;
+// ===== CARD 3D TILT — Only on non-touch devices =====
+if (window.matchMedia('(hover: hover)').matches) {
+  document.querySelectorAll('.service-card, .work-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left - r.width  / 2) / r.width;
+      const y = (e.clientY - r.top  - r.height / 2) / r.height;
+      card.style.transform = `translateY(-8px) rotateX(${y * -5}deg) rotateY(${x * 5}deg)`;
+    }, { passive: true });
+    card.addEventListener('mouseleave', () => { card.style.transform = ''; });
   });
-  card.addEventListener('mouseleave', () => { card.style.transform = ''; });
-});
+}
 
 // ===== FORM FOCUS GLOW =====
 document.querySelectorAll('.form-group input, .form-group select, .form-group textarea').forEach(el => {
