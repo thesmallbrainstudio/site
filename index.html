@@ -10,11 +10,23 @@
   <meta name="keywords"
     content="small brain studio, web development, android development, iOS development, windows development, wordpress, next.js" />
   <link rel="icon" type="image/png" href="Images/SBS logo.png" />
+
+  <!-- DNS Prefetch & Preconnect for external resources -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+
+  <!-- Fonts: display=swap prevents render blocking -->
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet" />
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap"
+    rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  </noscript>
+
+  <!-- Preload hero logo (critical LCP asset) -->
+  <link rel="preload" href="Images/SBS logo.png" as="image" fetchpriority="high" />
+
   <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -86,12 +98,12 @@
   <section class="hero" id="home">
     <div class="hero-blob blob-1"></div>
     <div class="hero-blob blob-2"></div>
-    <div class="particles" id="particles"></div>
+    <!-- Canvas-based particles are injected by script.js for better performance -->
 
     <div class="hero-content">
       <div class="hero-logo-wrap hero-anim hero-anim--1">
         <div class="hero-logo-circle">
-          <img src="Images/SBS logo.png" alt="Small Brain Studio" class="hero-logo-img" />
+          <img src="Images/SBS logo.png" alt="Small Brain Studio" class="hero-logo-img" fetchpriority="high" decoding="async" />
         </div>
       </div>
       <div class="hero-badge hero-anim hero-anim--2">
@@ -250,7 +262,7 @@
           <div class="founders-card">
             <div class="founders-header">
               <div class="sbs-logo-wrap">
-                <img src="Images/SBS logo.png" alt="SBS Logo" class="founders-logo" />
+                <img src="Images/SBS logo.png" alt="SBS Logo" class="founders-logo" loading="lazy" decoding="async" />
               </div>
               <div class="founded-badge">Est. 2023</div>
             </div>
@@ -261,7 +273,7 @@
             <div class="founders-row">
               <div class="founder-card">
                 <div class="founder-avatar founder-avatar--photo">
-                  <img src="Images/sachin.jpeg" alt="Sachin — Co-Founder" class="founder-photo" />
+                  <img src="images/sachin.jpeg" alt="Sachin — Co-Founder" class="founder-photo" loading="lazy" decoding="async" />
                 </div>
                 <div class="founder-info">
                   <h4>Sachin</h4>
@@ -271,7 +283,7 @@
               </div>
               <div class="founder-card">
                 <div class="founder-avatar founder-avatar--photo">
-                  <img src="Images/shivam.jpeg" alt="Shivam Sharma — Co-Founder" class="founder-photo" />
+                  <img src="images/shivam.jpeg" alt="Shivam Sharma — Co-Founder" class="founder-photo" loading="lazy" decoding="async" />
                 </div>
                 <div class="founder-info">
                   <h4>Shivam Sharma</h4>
@@ -345,7 +357,7 @@
         <!-- Website Development: Official Logo -->
         <div class="service-card" data-animate>
           <div class="service-icon-wrap service-icon-wrap--logo service-icon-wrap--round">
-            <img src="Images/website logo.png" alt="Website Development" class="service-logo-img" />
+            <img src="Images/website logo.png" alt="Website Development" class="service-logo-img" loading="lazy" decoding="async" />
           </div>
           <h3>Website Development</h3>
           <p>We design and build fast, responsive, SEO-optimized websites using modern technologies. From business
@@ -365,7 +377,7 @@
         <div class="service-card featured" data-animate>
           <div class="featured-label">Most Popular</div>
           <div class="service-icon-wrap service-icon-wrap--logo">
-            <img src="Images/android logo.webp" alt="Android" class="service-logo-img" />
+            <img src="Images/android logo.webp" alt="Android" class="service-logo-img" loading="lazy" decoding="async" />
           </div>
           <h3>Android App Development</h3>
           <p>Native and cross-platform Android applications that deliver smooth user experiences, powerful features, and
@@ -384,7 +396,7 @@
         <!-- iOS: Official Apple Logo -->
         <div class="service-card" data-animate>
           <div class="service-icon-wrap service-icon-wrap--logo service-icon-wrap--dark">
-            <img src="Images/apple logo.webp" alt="Apple iOS" class="service-logo-img" />
+            <img src="Images/apple logo.webp" alt="Apple iOS" class="service-logo-img" loading="lazy" decoding="async" />
           </div>
           <h3>iOS App Development</h3>
           <p>Polished, high-performance iOS applications built for iPhone and iPad. Crafted with exceptional UX and
@@ -403,7 +415,7 @@
         <!-- Windows: Official Logo -->
         <div class="service-card" data-animate>
           <div class="service-icon-wrap service-icon-wrap--logo">
-            <img src="Images/windos.webp" alt="Windows" class="service-logo-img" />
+            <img src="Images/windos.webp" alt="Windows" class="service-logo-img" loading="lazy" decoding="async" />
           </div>
           <h3>Windows App Development</h3>
           <p>Efficient, feature-rich desktop applications for Windows. Whether it's business management tools,
@@ -422,7 +434,7 @@
         <!-- WordPress: Official Logo -->
         <div class="service-card" data-animate>
           <div class="service-icon-wrap service-icon-wrap--logo">
-            <img src="Images/wordpress.webp" alt="WordPress" class="service-logo-img" />
+            <img src="Images/wordpress.webp" alt="WordPress" class="service-logo-img" loading="lazy" decoding="async" />
           </div>
           <h3>WordPress Development</h3>
           <p>Custom WordPress websites, themes, and plugins. We build fast, scalable, and easy-to-manage WordPress
@@ -441,7 +453,7 @@
         <!-- Next.js: Official Logo -->
         <div class="service-card" data-animate>
           <div class="service-icon-wrap service-icon-wrap--logo service-icon-wrap--dark">
-            <img src="Images/next js.jfif" alt="Next.js" class="service-logo-img" />
+            <img src="Images/next js.jfif" alt="Next.js" class="service-logo-img" loading="lazy" decoding="async" />
           </div>
           <h3>Next.js Development</h3>
           <p>Blazing-fast, SEO-friendly full-stack web applications powered by Next.js — perfect for startups and
@@ -487,7 +499,7 @@
         <!-- Fine ERP -->
         <div class="work-card" data-category="windows" data-animate>
           <div class="work-preview">
-            <img src="Images/Fine ERP Logo.png" alt="Fine ERP Jewellers" class="work-logo-img" />
+            <img src="Images/Fine ERP Logo.png" alt="Fine ERP Jewellers" class="work-logo-img" loading="lazy" decoding="async" />
             <div class="work-overlay">
               <div class="overlay-content">
                 <span class="work-cat-badge">Mobile &amp; Windows</span>
@@ -513,7 +525,7 @@
         <!-- CashCraft POS -->
         <div class="work-card" data-category="windows" data-animate>
           <div class="work-preview">
-            <img src="Images/Cashcraftpos.ico" alt="CashCraft POS" class="work-logo-img" style="border-radius:12px;" />
+            <img src="Images/Cashcraftpos.ico" alt="CashCraft POS" class="work-logo-img" loading="lazy" decoding="async" style="border-radius:12px;" />
             <div class="work-overlay">
               <div class="overlay-content">
                 <span class="work-cat-badge">Windows App</span>
@@ -539,7 +551,7 @@
         <!-- Digital Products CRM -->
         <div class="work-card" data-category="windows" data-animate>
           <div class="work-preview">
-            <img src="Images/crm-app.jpg" alt="Digital Products CRM" class="work-logo-img" style="max-height:100%;max-width:100%;object-fit:cover;width:100%;height:100%;" />
+            <img src="Images/crm-app.jpg" alt="Digital Products CRM" class="work-logo-img" loading="lazy" decoding="async" style="max-height:100%;max-width:100%;object-fit:cover;width:100%;height:100%;" />
             <div class="work-overlay">
               <div class="overlay-content">
                 <span class="work-cat-badge">Windows App</span>
@@ -564,7 +576,7 @@
         <!-- FINE Copper Trading App -->
         <div class="work-card" data-category="windows" data-animate>
           <div class="work-preview">
-            <img src="Images/copper trading app.jpg" alt="FINE Copper Trading App" class="work-logo-img" style="max-height:100%;max-width:100%;object-fit:cover;width:100%;height:100%;" />
+            <img src="Images/copper trading app.jpg" alt="FINE Copper Trading App" class="work-logo-img" loading="lazy" decoding="async" style="max-height:100%;max-width:100%;object-fit:cover;width:100%;height:100%;" />
             <div class="work-overlay">
               <div class="overlay-content">
                 <span class="work-cat-badge">Windows App</span>
@@ -623,7 +635,7 @@
         <!-- Brick Breaker Game -->
         <div class="work-card" data-category="android" data-animate>
           <div class="work-preview">
-            <img src="Images/Brickbreaker.png" alt="Brick Breaker Game" class="work-logo-img" style="object-fit:contain;padding:12px;background:#0f0f1a;" />
+            <img src="Images/Brickbreaker.png" alt="Brick Breaker Game" class="work-logo-img" loading="lazy" decoding="async" style="object-fit:contain;padding:12px;background:#0f0f1a;" />
             <div class="work-overlay">
               <div class="overlay-content">
                 <span class="work-cat-badge">Android</span>
@@ -865,7 +877,7 @@
   <footer class="footer">
     <div class="footer-container">
       <div class="footer-brand">
-        <img src="Images/SBS logo.png" alt="Small Brain Studio" class="footer-logo" />
+        <img src="Images/SBS logo.png" alt="Small Brain Studio" class="footer-logo" loading="lazy" decoding="async" />
         <p class="footer-tagline">We Bring Ideas To Life</p>
         <p>Crafting high-performance digital products — websites, apps &amp; software — since 2023.</p>
       </div>
@@ -904,9 +916,8 @@
     </div>
   </footer>
 
-  <!-- EmailJS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-  <script src="script.js"></script>
+  <!-- script.js deferred — does not block HTML parsing -->
+  <script src="script.js" defer></script>
 </body>
 
 </html>
